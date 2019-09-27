@@ -8,16 +8,25 @@ const int column = 10;
 
 void testGameGrid();
 void setUpGameGrid();
-void createTetrisShapes();
+void createTetrisShapes(char grid[row][column]);
 
 
 class ShapeBlock{
 public:
-  int positionY = column/2; 
+  int positionY; 
   int positionX;
+  ShapeBlock();
+  ~ShapeBlock();
   void changePosition(int x,int y);
   void setPositions(int x, int y);
+
 };
+
+ShapeBlock::ShapeBlock(){
+  positionY = column/2;
+  positionX = 0;
+}
+ShapeBlock::~ShapeBlock(){}
 
 void ShapeBlock::setPositions(int x, int y){
   positionY = y;
@@ -26,48 +35,64 @@ void ShapeBlock::setPositions(int x, int y){
 }
 
 
-
-
 class TetrisShape{
 public:
   ShapeBlock ShapeArr[4];//array of 4 blocks
   
   TetrisShape();
-  TetrisShape()~;
-  void printTetrisShape();
+  ~TetrisShape();
+  int getCoordinateY(int);
+  int getCoordinateX(int);
+  void create();
   void moveDownByOne();
-
+  
 };
 
-void TetrisShape::TetrisShape(){//constructor
-  for(int i = 0 ; i < 4; i ++){
-    ShapeArr[i].setPosition(4,x);
-    
+TetrisShape::TetrisShape(){}//Constructor
+TetrisShape::~TetrisShape(){}
+
+void TetrisShape::create(){//generates a tetris shape
+  int xpos = 4;
+  int ypos = 0;
+  srand(time(NULL));
+  for(int i = 0 ; i < 4; i ++){//Going to go through the entire shape array
+    xpos = 4;
+    ypos = 0;
+
+    if(i == 0){
+      ShapeArr[i].setPositions(xpos,ypos);
+    }
+    else{
+      do{//do this randon number generation if its not the first block
+	xpos = 3+(rand() % 6);//randon number between 3 and 6                                                 
+	ypos = rand() % 1;//randon number between 0 and 1                                                     
+      }while(xpos==4 && ypos==0);
+      
+      ShapeArr[i].setPositions(xpos,ypos);
+    }
   }
 }
-void TetrisShape::printTetrisShape(){
-  
-  
 
+int TetrisShape::getCoordinateY(int num){
+  return ShapeArr[num].positionY;
 }
+int TetrisShape::getCoordinateX(int num){
+  return ShapeArr[num].positionX;
+}
+
 
 
 int main(){
   std::cout<<"Tetris!"<<std::endl;
-  createTetrisShapes();
-  int num = 0;
-  while(num != 10){
-    num = rand()% 10+1;
-    std::cout<<num<<"\n\n";
-  }
+  //createTetrisShapes();
   //For tetris i will need a grid  
   //Need to have pieces in 4s - Different shapes
   //Pieces need to be moving down 
   //pieces need to be moving faster over time
   //if the pieces fill up an entire row then i need to delete that row
   //Set up the game board  
-  //setUpGameGrid();
-  testGameGrid();
+  setUpGameGrid();
+  //testGameGrid();
 return 0;
 }
 
@@ -91,12 +116,12 @@ void setUpGameGrid(){  //Set up the game board
   char gameGrid[row][column];
   for(int y = 0 ; y < row ; y++){
     for(int x = 0 ; x  < column; x++){
-      if(y==0 || y==row-1 || x==0 || x==column-1){
+      if(y==row-1 || x==0 || x==column-1){
         gameGrid[y][x]='X';
       }
       else{
-        if(x==24){
-	  createTetrisShapes();
+        if(x==4 && y == 0){
+	  createTetrisShapes(gameGrid);  //pass the grid into the function
 	}
 	else{
 	  gameGrid[y][x]=' ';
@@ -110,10 +135,15 @@ void setUpGameGrid(){  //Set up the game board
 
 
 
-void createTetrisShapes(){
+void createTetrisShapes(char grid[row][column]){
   TetrisShape tet;
-  tet.ShapeArr[0].setPositions(1,1);
-  std::cout<<tet.ShapeArr[0].positionY<<"\n";
-  std::cout<<tet.ShapeArr[0].positionX<<"\n\n";
-  
+  tet.create();
+  int x,y;
+  for(int i = 0 ; i < 4 ; i++){
+    y = tet.getCoordinateY(i);
+    x = tet.getCoordinateX(i);
+    //    std::cout<<x<<y<<"\n";
+    grid[y][x]= 'O';
+  }
+
 }
